@@ -3,7 +3,6 @@ package org.cechjoe.work.assigment.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatch;
-import org.cechjoe.work.assigment.data.NewRecordModel;
 import org.cechjoe.work.assigment.processor.RecordProcessor;
 import org.springframework.web.bind.annotation.*;
 

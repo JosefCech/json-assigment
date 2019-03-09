@@ -3,7 +3,6 @@ package org.cechjoe.work.assigment.test.processor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.cechjoe.work.assigment.data.NewRecordModel;
 import org.cechjoe.work.assigment.data.SaveRecordModel;
 import org.cechjoe.work.assigment.processor.DataFileProcessor;
 import org.cechjoe.work.assigment.processor.RecordProcessor;
@@ -26,7 +25,8 @@ public class RecordProcessorTest {
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
         info.put("data","base64");
-        model.put("info",info);
+        model.putObject("info");
+        model.set("info",info);
         JsonNode node = recordProcessor.saveNewRecord(model);
         verify(dataFileProcessor).putRecord(any(SaveRecordModel.class));
         assert(node.path("recordId").asText() != "");

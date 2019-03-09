@@ -16,7 +16,8 @@ public class SavedDataProcessorTest {
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
         info.put("data", "test123");
-        model.put("info", info);
+        model.putObject("info");
+        model.set("info",info);
          SaveRecordModel model1 = new SaveRecordModel(model);
         SavedDataProcessor processor = new SavedDataProcessor();
 

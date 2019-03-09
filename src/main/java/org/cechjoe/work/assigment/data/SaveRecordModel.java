@@ -69,26 +69,6 @@ public class SaveRecordModel {
         }
     }
 
-    public SaveRecordModel(String uuid, RecordStatus status, String data, Date createAt, Date deleteAt, List<Date> updatedAt) {
-        node = JsonNodeFactory.instance.objectNode();
-        setUuid(uuid);
-        node.put(UUID_FIELD, uuid);
-        ObjectNode infoNode = node.putObject(INFO_FIELD);
-        infoNode.put(DATA_INFO, data);
-        infoNode.put(STATUS_FIELD, status.toString());
-        infoNode.put(CREATE_AT_FIELD, dateToString(createAt));
-        if (deleteAt != null) {
-            infoNode.put(DELETED_AT_FIELD, dateToString(deleteAt));
-
-        };
-        ArrayNode arrayNode = infoNode.putArray(UPDATE_AT_FIELD);
-        if (updatedAt != null) {
-            for (Date date : updatedAt) {
-                arrayNode.add(date.getTime());
-            }
-        }
-    }
-
     public String getUuid() {
         return uuid;
     }
