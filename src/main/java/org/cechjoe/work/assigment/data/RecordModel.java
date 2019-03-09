@@ -23,14 +23,21 @@ public class RecordModel {
     private SimpleDateFormat rfc3339 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     private ObjectNode node;
 
-    private String UUID_FIELD = "recordId";
-    private String INFO_FIELD = "info";
-    private String DATA_INFO = "data";
-    private String STATUS_FIELD = "recordStatus";
-    private String CREATE_AT_FIELD = "createdAt";
-    private String DELETED_AT_FIELD = "deletedAt";
-    private String UPDATE_AT_FIELD = "updatedAt";
+    private static String UUID_FIELD = "recordId";
+    private static String INFO_FIELD = "info";
+    private static String DATA_INFO = "data";
+    private static String STATUS_FIELD = "recordStatus";
+    private static String CREATE_AT_FIELD = "createdAt";
+    private static String DELETED_AT_FIELD = "deletedAt";
+    private static String UPDATE_AT_FIELD = "updatedAt";
 
+    public static boolean verifyNewData(JsonNode newData) {
+        JsonNode info = newData.path(INFO_FIELD);
+        if (!info.isMissingNode()) {
+            return !info.path(DATA_INFO).isMissingNode();
+        }
+        return false;
+    }
 
     public RecordModel(@NotNull JsonNode recordModel) {
         this.node = (ObjectNode) recordModel;

@@ -19,10 +19,14 @@ public class RecordProcessor {
         this.dataFileProcessor = dataFileProcessor;
     }
 
-      public JsonNode saveNewRecord(JsonNode newData) {
+    public JsonNode saveNewRecord(JsonNode newData) {
         RecordModel savedData = new RecordModel(newData);
-        dataFileProcessor.putRecord(savedData);
-        return savedData.getJsonNode();
+        if (!dataFileProcessor.keyExists(savedData.getUuid())) {
+            dataFileProcessor.putRecord(savedData);
+            return savedData.getJsonNode();
+        } else {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Key " + savedData.getUuid() + " already exists");
+        }
     }
 
     public JsonNode getRecord(String key) {
@@ -31,7 +35,6 @@ public class RecordProcessor {
 
 
     public JsonNode deleteRecord(String key) {
-
         RecordModel recordModel = dataFileProcessor.getRecord(key);
         recordModel.markForDeletion();
         dataFileProcessor.putRecord(recordModel);
@@ -43,7 +46,7 @@ public class RecordProcessor {
         try {
             recordModel.patchOperation(patch);
             dataFileProcessor.putRecord(recordModel);
-             return recordModel.getJsonNode();
+            return recordModel.getJsonNode();
         } catch (JsonPatchException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

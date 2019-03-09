@@ -26,12 +26,12 @@ public class DataFileProcessor {
         this.indexRepository = indexRepository;
     }
 
-    public void putRecord(RecordModel recordModel) {
+    public void putRecord(@NotNull RecordModel recordModel) {
         int savedLine = fileRepository.appendLine(savedDataProcessor.createLine(recordModel));
         indexRepository.setIndex(recordModel.getUuid(), savedLine);
     }
 
-    public RecordModel getRecord(String uuid) {
+    public RecordModel getRecord(@NotNull String uuid) {
         int lineNum = indexRepository.getIndex(uuid);
 
         if (lineNum >= 0) {
@@ -44,6 +44,12 @@ public class DataFileProcessor {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "key : " + uuid + " not found");
         }
+    }
+
+    public boolean keyExists(@NotNull String uuid)
+    {
+        int lineNum = indexRepository.getIndex(uuid);
+        return  lineNum >= 0;
     }
 
 
