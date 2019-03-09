@@ -1,22 +1,22 @@
 package org.cechjoe.work.assigment.processor;
 
 
-import org.cechjoe.work.assigment.data.SaveRecordModel;
+import org.cechjoe.work.assigment.data.RecordModel;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SavedDataProcessor {
 
-    public String createLine(SaveRecordModel saveRecordModel) {
+    public String createLine(RecordModel recordModel) {
 
-        return saveRecordModel.serializeJson();
+        return recordModel.serializeJson();
     }
 
 
-    public SaveRecordModel readRecord(String line) {
+    public RecordModel readRecord(String line) {
 
         try {
-            return new SaveRecordModel(line);
+            return new RecordModel(line);
         } catch (Exception e) {
             e.printStackTrace();
         }

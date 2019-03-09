@@ -1,6 +1,6 @@
 package org.cechjoe.work.assigment.repository;
 
-import org.cechjoe.work.assigment.data.SaveRecordModel;
+import org.cechjoe.work.assigment.data.RecordModel;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -18,8 +18,8 @@ public class IndexRepository {
         try (Stream<String> stream =  fileRepository.getAllLines()) {
             AtomicInteger index = new AtomicInteger();
             stream.forEach(line -> {
-                SaveRecordModel saveRecordModel = new SaveRecordModel(line);
-                setIndex(saveRecordModel.getUuid(), index.get());
+                RecordModel recordModel = new RecordModel(line);
+                setIndex(recordModel.getUuid(), index.get());
                 index.addAndGet(1);
             });
         }

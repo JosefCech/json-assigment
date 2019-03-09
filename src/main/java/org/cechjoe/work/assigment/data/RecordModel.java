@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -15,11 +14,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class SaveRecordModel {
+public class RecordModel {
     private String uuid;
     private SimpleDateFormat rfc3339 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     private ObjectNode node;
@@ -33,11 +31,7 @@ public class SaveRecordModel {
     private String UPDATE_AT_FIELD = "updatedAt";
 
 
-    private void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public SaveRecordModel(JsonNode recordModel) {
+    public RecordModel(JsonNode recordModel) {
         this.node = (ObjectNode) recordModel;
         if (recordModel.path(UUID_FIELD).isMissingNode())
         {
@@ -59,7 +53,7 @@ public class SaveRecordModel {
         }
     }
 
-    public SaveRecordModel(String line) {
+    public RecordModel(String line) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             node = (ObjectNode) mapper.readTree(line);

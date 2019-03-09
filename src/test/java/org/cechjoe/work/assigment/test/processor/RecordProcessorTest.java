@@ -3,7 +3,7 @@ package org.cechjoe.work.assigment.test.processor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.cechjoe.work.assigment.data.SaveRecordModel;
+import org.cechjoe.work.assigment.data.RecordModel;
 import org.cechjoe.work.assigment.processor.DataFileProcessor;
 import org.cechjoe.work.assigment.processor.RecordProcessor;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class RecordProcessorTest {
         model.putObject("info");
         model.set("info",info);
         JsonNode node = recordProcessor.saveNewRecord(model);
-        verify(dataFileProcessor).putRecord(any(SaveRecordModel.class));
+        verify(dataFileProcessor).putRecord(any(RecordModel.class));
         assert(node.path("recordId").asText() != "");
     }
 
@@ -37,7 +37,7 @@ public class RecordProcessorTest {
     {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}";
-        SaveRecordModel model = new SaveRecordModel(lineToRead);
+        RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
         RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
         JsonNode node = recordProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");

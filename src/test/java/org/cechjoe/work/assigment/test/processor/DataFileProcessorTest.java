@@ -1,7 +1,7 @@
 package org.cechjoe.work.assigment.test.processor;
 
 
-import org.cechjoe.work.assigment.data.SaveRecordModel;
+import org.cechjoe.work.assigment.data.RecordModel;
 import org.cechjoe.work.assigment.processor.DataFileProcessor;
 import org.cechjoe.work.assigment.processor.SavedDataProcessor;
 import org.cechjoe.work.assigment.repository.FileRepository;
@@ -23,14 +23,14 @@ public class DataFileProcessorTest {
 
         when(fileRepository.getLine(1)).thenReturn(lineToRead);
         SavedDataProcessor savedDataProcessor = Mockito.mock(SavedDataProcessor.class);
-         SaveRecordModel model = new SaveRecordModel("{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}");
+         RecordModel model = new RecordModel("{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}");
         when(savedDataProcessor.readRecord(lineToRead)).thenReturn(model);
         IndexRepository indexRepository = Mockito.mock(IndexRepository.class);
         when(indexRepository.getIndex("newId")).thenReturn(1);
 
         DataFileProcessor dataFileProcessor = new DataFileProcessor(fileRepository,savedDataProcessor,indexRepository);
 
-        SaveRecordModel returnedModel = dataFileProcessor.getRecord("newId");
+        RecordModel returnedModel = dataFileProcessor.getRecord("newId");
 
         assert(returnedModel.getUuid() == model.getUuid());
         verify(fileRepository).getLine(1);
@@ -46,7 +46,7 @@ public class DataFileProcessorTest {
 
         when(fileRepository.appendLine(lineToWrite)).thenReturn(1);
         SavedDataProcessor savedDataProcessor = Mockito.mock(SavedDataProcessor.class);
-        SaveRecordModel model = new SaveRecordModel("{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}");
+        RecordModel model = new RecordModel("{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}");
         when(savedDataProcessor.createLine(model)).thenReturn(lineToWrite);
         IndexRepository indexRepository = Mockito.mock(IndexRepository.class);
 

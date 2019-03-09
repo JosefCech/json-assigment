@@ -3,7 +3,7 @@ package org.cechjoe.work.assigment.processor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
-import org.cechjoe.work.assigment.data.SaveRecordModel;
+import org.cechjoe.work.assigment.data.RecordModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,7 +18,7 @@ public class RecordProcessor {
     }
 
       public JsonNode saveNewRecord(JsonNode newData) {
-        SaveRecordModel savedData = new SaveRecordModel(newData);
+        RecordModel savedData = new RecordModel(newData);
         dataFileProcessor.putRecord(savedData);
         return savedData.getJsonNode();
     }
@@ -30,18 +30,18 @@ public class RecordProcessor {
 
     public JsonNode deleteRecord(String key) {
 
-        SaveRecordModel saveRecordModel = dataFileProcessor.getRecord(key);
-        saveRecordModel.markForDeletion();
-        dataFileProcessor.putRecord(saveRecordModel);
-        return saveRecordModel.getJsonNode();
+        RecordModel recordModel = dataFileProcessor.getRecord(key);
+        recordModel.markForDeletion();
+        dataFileProcessor.putRecord(recordModel);
+        return recordModel.getJsonNode();
     }
 
     public JsonNode updateRecord(String key, JsonPatch patch) {
-        SaveRecordModel saveRecordModel = dataFileProcessor.getRecord(key);
+        RecordModel recordModel = dataFileProcessor.getRecord(key);
         try {
-            saveRecordModel.patchOperation(patch);
-            dataFileProcessor.putRecord(saveRecordModel);
-             return saveRecordModel.getJsonNode();
+            recordModel.patchOperation(patch);
+            dataFileProcessor.putRecord(recordModel);
+             return recordModel.getJsonNode();
         } catch (JsonPatchException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

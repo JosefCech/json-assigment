@@ -1,6 +1,6 @@
 package org.cechjoe.work.assigment.processor;
 
-import org.cechjoe.work.assigment.data.SaveRecordModel;
+import org.cechjoe.work.assigment.data.RecordModel;
 import org.cechjoe.work.assigment.repository.FileRepository;
 import org.cechjoe.work.assigment.repository.IndexRepository;
 import org.springframework.http.HttpStatus;
@@ -21,12 +21,12 @@ public class DataFileProcessor {
        this.indexRepository = indexRepository;
    }
 
-    public void putRecord(SaveRecordModel saveRecordModel) {
-       int savedLine =  fileRepository.appendLine(savedDataProcessor.createLine(saveRecordModel));
-       indexRepository.setIndex(saveRecordModel.getUuid(),savedLine);
+    public void putRecord(RecordModel recordModel) {
+       int savedLine =  fileRepository.appendLine(savedDataProcessor.createLine(recordModel));
+       indexRepository.setIndex(recordModel.getUuid(),savedLine);
     }
 
-    public SaveRecordModel getRecord(String uuid)
+    public RecordModel getRecord(String uuid)
     {
         int lineNum = indexRepository.getIndex(uuid);
         String line = fileRepository.getLine(lineNum);
