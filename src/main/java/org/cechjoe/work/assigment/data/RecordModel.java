@@ -124,17 +124,12 @@ public class RecordModel {
     }
 
     public void markForDeletion() {
-        if (!node.path(INFO_FIELD).path(STATUS_FIELD).asText().contains(RecordStatus.DELETED.toString())) {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode info = (ObjectNode) node.path(INFO_FIELD);
             info.remove(STATUS_FIELD);
             info.remove(DELETED_AT_FIELD);
             info.put(STATUS_FIELD, RecordStatus.DELETED.toString());
             info.put(DELETED_AT_FIELD, dateToString(new Date()));
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "key : " + uuid + " already deleted");
-
-        }
     }
 
     public JsonNode getJsonNode() {
@@ -143,5 +138,9 @@ public class RecordModel {
 
     private String dateToString(Date date) {
         return rfc3339.format(date);
+    }
+
+    public boolean isDeleted() {
+        return !node.path(INFO_FIELD).path(STATUS_FIELD).asText().contains(RecordStatus.DELETED.toString());
     }
 }

@@ -36,9 +36,14 @@ public class RecordProcessor {
 
     public JsonNode deleteRecord(String key) {
         RecordModel recordModel = dataFileProcessor.getRecord(key);
-        recordModel.markForDeletion();
-        dataFileProcessor.putRecord(recordModel);
-        return recordModel.getJsonNode();
+        if (!recordModel.isDeleted()) {
+            recordModel.markForDeletion();
+            dataFileProcessor.putRecord(recordModel);
+            return recordModel.getJsonNode();
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "key : " + recordModel.getUuid() + " already deleted");
+        }
     }
 
     public JsonNode updateRecord(String key, JsonPatch patch) {
