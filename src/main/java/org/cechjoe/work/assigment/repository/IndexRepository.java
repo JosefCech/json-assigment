@@ -3,6 +3,7 @@ package org.cechjoe.work.assigment.repository;
 import org.cechjoe.work.assigment.data.RecordModel;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 public class IndexRepository {
     private Map<String,Integer> indexes;
 
-    public IndexRepository(FileRepository fileRepository)
+    public IndexRepository(@NotNull FileRepository fileRepository)
     {
         this.indexes = new HashMap<String,Integer>();
         try (Stream<String> stream =  fileRepository.getAllLines()) {
@@ -25,7 +26,7 @@ public class IndexRepository {
         }
     }
 
-    public void setIndex(String key, int indexLine )
+    public void setIndex(@NotNull String key, int indexLine )
     {
         if (indexes.containsKey(key))
         {
@@ -37,7 +38,7 @@ public class IndexRepository {
 
     }
 
-    public int getIndex(String key)
+    public int getIndex( @NotNull String key)
     {
         if (indexes.containsKey(key))
         {

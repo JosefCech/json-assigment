@@ -11,6 +11,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,29 +32,34 @@ public class RecordModel {
     private String UPDATE_AT_FIELD = "updatedAt";
 
 
-    public RecordModel(JsonNode recordModel) {
+    public RecordModel(@NotNull JsonNode recordModel) {
         this.node = (ObjectNode) recordModel;
-        if (recordModel.path(UUID_FIELD).isMissingNode())
-        {
+        if (recordModel.path(UUID_FIELD).isMissingNode()) {
             this.uuid = UUID.randomUUID().toString();
-            node.put(UUID_FIELD,this.uuid);
+            node.put(UUID_FIELD, this.uuid);
+        } else {
+            this.uuid = recordModel.path(UUID_FIELD).asText();
         }
         JsonNode info = node.path(INFO_FIELD);
-        if (!info.isMissingNode()) {
-          JsonNode data = info.path(DATA_INFO);
-          setData((ObjectNode) info,STATUS_FIELD,RecordStatus.NEW.toString());
-          setData((ObjectNode) info,CREATE_AT_FIELD, dateToString(new Date()));
+        if (info.isMissingNode()) {
+            node.putObject(INFO_FIELD);
+            ObjectMapper mapper = new ObjectMapper();
+            info = mapper.createObjectNode();
+            node.set(INFO_FIELD, info);
         }
+        setData((ObjectNode) info, STATUS_FIELD, RecordStatus.NEW.toString());
+        setData((ObjectNode) info, CREATE_AT_FIELD, dateToString(new Date()));
     }
+
 
     private void setData(ObjectNode node, String path, String value) {
         JsonNode subNode = node.path(path);
-        if (subNode.isMissingNode()){
-          node.put(path,value);
+        if (subNode.isMissingNode()) {
+            node.put(path, value);
         }
     }
 
-    public RecordModel(String line) {
+    public RecordModel(@NotNull String line) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             node = (ObjectNode) mapper.readTree(line);
@@ -78,7 +84,7 @@ public class RecordModel {
         return null;
     }
 
-    public void patchOperation(JsonPatch patch) throws JsonPatchException {
+    public void patchOperation(@NotNull JsonPatch patch) throws JsonPatchException {
         ObjectNode info = (ObjectNode) node.path(INFO_FIELD);
         if (!info.path(STATUS_FIELD).asText().equals(RecordStatus.DELETED.toString())) {
 
@@ -105,7 +111,8 @@ public class RecordModel {
         JsonNode info = nodeAppllied.path(INFO_FIELD);
         JsonNode status = info.path(STATUS_FIELD);
         JsonNode createAt = info.path(CREATE_AT_FIELD);
-        return !(id.isMissingNode() || info.isMissingNode() || status.isMissingNode() || createAt.isMissingNode());
+        JsonNode data = info.path(DATA_INFO);
+        return !(id.isMissingNode() || info.isMissingNode() || status.isMissingNode() || createAt.isMissingNode() || data.isMissingNode());
 
     }
 

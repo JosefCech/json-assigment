@@ -2,29 +2,23 @@ package org.cechjoe.work.assigment.repository;
 
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.function.*;
 import java.util.stream.*;
 
-import static java.util.stream.Stream.builder;
 
 @Component
 public class FileRepository {
 
     private String FILE_NAME;
 
-
     public FileRepository() {
         this("data.out");
     }
 
-    public FileRepository(String sourceFile) {
+    public FileRepository(@NotNull String sourceFile) {
         FILE_NAME = sourceFile;
     }
 
@@ -44,7 +38,7 @@ public class FileRepository {
         return count.getLineNumber();
     }
 
-    public int appendLine(String line) {
+    public int appendLine(@NotNull String line) {
         int updatedLine = -1;
         try {
             File file = getFileInstance();
@@ -55,8 +49,6 @@ public class FileRepository {
             updatedLine = getCountLines();
             writer.append("\n");
             writer.flush();
-
-
         } catch (Exception e) {
             System.out.print(e.getMessage());
         }

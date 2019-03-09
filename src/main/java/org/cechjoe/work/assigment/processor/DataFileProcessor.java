@@ -7,37 +7,44 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotNull;
+
+
 @Component
 public class DataFileProcessor {
+
 
     FileRepository fileRepository;
     SavedDataProcessor savedDataProcessor;
     IndexRepository indexRepository;
 
-   public DataFileProcessor(FileRepository repository, SavedDataProcessor savedDataProcessor, IndexRepository indexRepository)
-   {
-       this.fileRepository = repository;
-       this.savedDataProcessor =  savedDataProcessor;
-       this.indexRepository = indexRepository;
-   }
+    public DataFileProcessor(@NotNull FileRepository repository, @NotNull SavedDataProcessor savedDataProcessor, @NotNull IndexRepository indexRepository) {
 
-    public void putRecord(RecordModel recordModel) {
-       int savedLine =  fileRepository.appendLine(savedDataProcessor.createLine(recordModel));
-       indexRepository.setIndex(recordModel.getUuid(),savedLine);
+
+        this.fileRepository = repository;
+        this.savedDataProcessor = savedDataProcessor;
+        this.indexRepository = indexRepository;
     }
 
-    public RecordModel getRecord(String uuid)
-    {
+    public void putRecord(RecordModel recordModel) {
+        int savedLine = fileRepository.appendLine(savedDataProcessor.createLine(recordModel));
+        indexRepository.setIndex(recordModel.getUuid(), savedLine);
+    }
+
+    public RecordModel getRecord(String uuid) {
         int lineNum = indexRepository.getIndex(uuid);
-        String line = fileRepository.getLine(lineNum);
-        if (line != "") {
-            return savedDataProcessor.readRecord(line);
-        }
-        else {
+
+        if (lineNum >= 0) {
+            String line = fileRepository.getLine(lineNum);
+            if (!line.isEmpty()) {
+                return savedDataProcessor.readRecord(line);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "line " + lineNum + "found but empty");
+            }
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "key : " + uuid + " not found");
         }
     }
-
 
 
 }

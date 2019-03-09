@@ -8,12 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotNull;
+
 @Component
 public class RecordProcessor {
 
     private DataFileProcessor dataFileProcessor;
 
-    public RecordProcessor(DataFileProcessor dataFileProcessor) {
+    public RecordProcessor(@NotNull DataFileProcessor dataFileProcessor) {
         this.dataFileProcessor = dataFileProcessor;
     }
 
