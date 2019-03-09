@@ -11,13 +11,12 @@ import javax.validation.constraints.NotNull;
 @Component
 public class SavedDataProcessor {
 
-    public String createLine( RecordModel recordModel) {
+    public String createLine(@NotNull RecordModel recordModel) {
 
         return recordModel.serializeJson();
     }
 
-    public RecordModel readRecord( String line) {
-
+    public RecordModel readRecord(@NotNull String line) {
         try {
             return new RecordModel(line);
         } catch (Exception e) {

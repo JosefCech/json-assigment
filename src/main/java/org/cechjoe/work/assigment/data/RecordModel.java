@@ -107,7 +107,6 @@ public class RecordModel {
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "patch: " + patch.toString() + " contains invalid operations");
             }
-
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "key : " + uuid + " already deleted");
         }

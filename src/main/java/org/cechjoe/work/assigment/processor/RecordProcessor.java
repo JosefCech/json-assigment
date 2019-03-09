@@ -33,7 +33,6 @@ public class RecordProcessor {
         return dataFileProcessor.getRecord(key).getJsonNode();
     }
 
-
     public JsonNode deleteRecord(String key) {
         RecordModel recordModel = dataFileProcessor.getRecord(key);
         if (!recordModel.isDeleted()) {

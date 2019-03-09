@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 public class IndexRepository {
     private Map<String,Integer> indexes;
 
+    //Todo shrink data
     public IndexRepository(@NotNull FileRepository fileRepository)
     {
         this.indexes = new HashMap<String,Integer>();

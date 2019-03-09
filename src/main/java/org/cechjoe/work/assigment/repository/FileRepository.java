@@ -14,6 +14,7 @@ public class FileRepository {
 
     private String FILE_NAME;
 
+    //Todo config
     public FileRepository() {
         this("data.out");
     }
