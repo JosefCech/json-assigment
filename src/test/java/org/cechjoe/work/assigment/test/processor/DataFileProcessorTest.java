@@ -42,11 +42,11 @@ public class DataFileProcessorTest {
     public void GivenData_WhenWriteToFile_ThenIndexUpdated()
     {
         FileRepository fileRepository =  Mockito.mock(FileRepository.class);
-        String lineToWrite = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}";
+        String lineToWrite = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"created\":1552142013520,\"updated\":[]}}";
 
         when(fileRepository.appendLine(lineToWrite)).thenReturn(1);
         SavedDataProcessor savedDataProcessor = Mockito.mock(SavedDataProcessor.class);
-        RecordModel model = new RecordModel("{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}");
+        RecordModel model = new RecordModel("{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"status\":\"NEW\",\"created\":1552142013520,\"updated\":[]}}");
         when(savedDataProcessor.createLine(model)).thenReturn(lineToWrite);
         IndexRepository indexRepository = Mockito.mock(IndexRepository.class);
 

@@ -25,11 +25,11 @@ public class RecordModel {
 
     private static String UUID_FIELD = "recordId";
     private static String INFO_FIELD = "info";
-    private static String DATA_INFO = "data";
+    private static String DATA_INFO = "recordData";
     private static String STATUS_FIELD = "recordStatus";
-    private static String CREATE_AT_FIELD = "createdAt";
-    private static String DELETED_AT_FIELD = "deletedAt";
-    private static String UPDATE_AT_FIELD = "updatedAt";
+    private static String CREATE_AT_FIELD = "created";
+    private static String DELETED_AT_FIELD = "deleted";
+    private static String UPDATE_AT_FIELD = "updated";
 
     public static boolean verifyNewData(JsonNode newData) {
         JsonNode info = newData.path(INFO_FIELD);
@@ -143,6 +143,6 @@ public class RecordModel {
     }
 
     public boolean isDeleted() {
-        return !node.path(INFO_FIELD).path(STATUS_FIELD).asText().contains(RecordStatus.DELETED.toString());
+        return node.path(INFO_FIELD).path(STATUS_FIELD).asText().contains(RecordStatus.DELETED.toString());
     }
 }

@@ -15,7 +15,7 @@ public class SavedDataProcessorTest {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
-        info.put("data", "test123");
+        info.put("recordData", "test123");
         model.putObject("info");
         model.set("info",info);
          RecordModel model1 = new RecordModel(model);
@@ -28,7 +28,7 @@ public class SavedDataProcessorTest {
 
     @Test
     public void GivenLineWithMinimumValues_WhenLineToObject_ThenSuccessfullyMigrated() {
-        String line = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}";
+        String line = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"status\":\"NEW\",\"created\":1552142013520,\"updated\":[]}}";
         SavedDataProcessor processor = new SavedDataProcessor();
         RecordModel model = processor.readRecord(line);
         assert (model.getUuid().equals("bd987eac-d21b-4b63-a3f3-1d33f8081a0b"));

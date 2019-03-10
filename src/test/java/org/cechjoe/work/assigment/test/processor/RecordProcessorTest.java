@@ -43,7 +43,7 @@ public class RecordProcessorTest {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
-        info.put("data", "base64");
+        info.put("recordData", "base64");
         model.putObject("info");
         model.set("info", info);
         JsonNode node = recordProcessor.saveNewRecord(model);
@@ -52,7 +52,7 @@ public class RecordProcessorTest {
     @Test
     public void GivenKey_WhenLoadData_ThenObjectIsLoaded() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
-        String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}";
+        String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"NEW\",\"created\":1552142013520,\"updated\":[]}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
         RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
@@ -64,7 +64,7 @@ public class RecordProcessorTest {
     @Test(expected = ResponseStatusException.class)
     public void GivenDeletedRecord_WhenUpdated_ThenExceptionIsThrown() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
-        String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"DELETED\",\"createdAt\":1552142013520,\"updateAt\":[]}}";
+        String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"DELETED\",\"created\":1552142013520,\"updated\":[]}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
         RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);

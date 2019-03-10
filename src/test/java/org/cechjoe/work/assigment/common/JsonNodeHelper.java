@@ -10,7 +10,7 @@ public class JsonNodeHelper {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
-        info.put("data", "test123");
+        info.put("recordData", "test123");
         model.putObject("info");
         model.set("info",info);
         return  model;
