@@ -17,19 +17,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+import static org.cechjoe.work.assigment.data.RecordConstant.*;
+import static org.cechjoe.work.assigment.data.RecordUtils.dateToString;
+import static org.cechjoe.work.assigment.data.RecordUtils.verifyNode;
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class RecordModel {
     private String uuid;
-    private SimpleDateFormat rfc3339 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     private ObjectNode node;
 
-    private static String UUID_FIELD = "recordId";
-    private static String INFO_FIELD = "info";
-    private static String DATA_INFO = "recordData";
-    private static String STATUS_FIELD = "recordStatus";
-    private static String CREATE_AT_FIELD = "created";
-    private static String DELETED_AT_FIELD = "deleted";
-    private static String UPDATE_AT_FIELD = "updated";
 
     public static boolean verifyNewData(JsonNode newData) {
         JsonNode info = newData.path(INFO_FIELD);
@@ -58,12 +54,12 @@ public class RecordModel {
         setData((ObjectNode) info, CREATE_AT_FIELD, dateToString(new Date()));
     }
 
-
     private void setData(ObjectNode node, String path, String value) {
         JsonNode subNode = node.path(path);
-        if (subNode.isMissingNode()) {
-            node.put(path, value);
+        if (!subNode.isMissingNode()) {
+            node.remove(path);
         }
+        node.put(path, value);
     }
 
     public RecordModel(@NotNull String line) {
@@ -91,58 +87,18 @@ public class RecordModel {
         return null;
     }
 
-    public void patchOperation(@NotNull JsonPatch patch) throws JsonPatchException {
-        ObjectNode info = (ObjectNode) node.path(INFO_FIELD);
-        if (!info.path(STATUS_FIELD).asText().equals(RecordStatus.DELETED.toString())) {
 
-
-            JsonNode nodeAppllied = (ObjectNode) patch.apply(node);
-            if (verifyNode(nodeAppllied)) {
-                node = (ObjectNode) nodeAppllied;
-                info = (ObjectNode) node.path(INFO_FIELD);
-                info.remove(STATUS_FIELD);
-                info.put(STATUS_FIELD, RecordStatus.UPDATED.toString());
-                if (info.path(UPDATE_AT_FIELD).isMissingNode())
-                {
-                    info.putArray(UPDATE_AT_FIELD);
-                }
-                ArrayNode updates = (ArrayNode) info.path(UPDATE_AT_FIELD);
-                updates.add(dateToString(new Date()));
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "patch: " + patch.toString() + " contains invalid operations");
-            }
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "key : " + uuid + " already deleted");
-        }
-    }
-
-    private boolean verifyNode(JsonNode nodeAppllied) {
-        JsonNode id = nodeAppllied.path(UUID_FIELD);
-        JsonNode info = nodeAppllied.path(INFO_FIELD);
-        JsonNode status = info.path(STATUS_FIELD);
-        JsonNode createAt = info.path(CREATE_AT_FIELD);
-        JsonNode data = info.path(DATA_INFO);
-        return !(id.isMissingNode() || info.isMissingNode() || status.isMissingNode() || createAt.isMissingNode() || data.isMissingNode());
-
-    }
-
-    public void markForDeletion() {
-            ObjectNode info = (ObjectNode) node.path(INFO_FIELD);
-            info.remove(STATUS_FIELD);
-            info.remove(DELETED_AT_FIELD);
-            info.put(STATUS_FIELD, RecordStatus.DELETED.toString());
-            info.put(DELETED_AT_FIELD, dateToString(new Date()));
-    }
 
     public JsonNode getJsonNode() {
         return node;
     }
 
-    private String dateToString(Date date) {
-        return rfc3339.format(date);
-    }
 
     public boolean isDeleted() {
         return node.path(INFO_FIELD).path(STATUS_FIELD).asText().contains(RecordStatus.DELETED.toString());
+    }
+
+    public void setJsonNode(ObjectNode node) {
+        this.node = node;
     }
 }

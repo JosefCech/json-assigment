@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.cechjoe.work.assigment.data.RecordModel;
 import org.cechjoe.work.assigment.data.RecordStatus;
+import org.cechjoe.work.assigment.facade.RecordFacade;
 import org.cechjoe.work.assigment.processor.DataFileProcessor;
 import org.cechjoe.work.assigment.processor.RecordProcessor;
 import org.json.JSONArray;
@@ -28,7 +30,8 @@ public class RecordProcessorTest {
     public void GivenData_WhenCreateNew_ThenNewRecordCreated() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
         when(dataFileProcessor.keyExists(anyString())).thenReturn(false);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
@@ -44,8 +47,9 @@ public class RecordProcessorTest {
     public void GivenAlreadyExistKey_WhenCreateNew_ThenExceptionIsThrown() {
 
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         when(dataFileProcessor.keyExists(anyString())).thenReturn(true);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
@@ -60,7 +64,8 @@ public class RecordProcessorTest {
 
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
         when(dataFileProcessor.keyExists(anyString())).thenReturn(false);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode model = mapper.createObjectNode();
         ObjectNode info = mapper.createObjectNode();
@@ -72,78 +77,87 @@ public class RecordProcessorTest {
     @Test
     public void GivenKey_WhenLoadData_ThenObjectIsLoaded() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         when(dataFileProcessor.keyExists("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(true);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"NEW\",\"created\":1552142013520,\"updated\":[]}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
         JsonNode node = recordProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
         verify(dataFileProcessor).getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
         assert (node.path("recordId").asText().contains("bd987eac-d21b-4b63-a3f3-1d33f8081a0b"));
     }
 
     @Test
-    public void GivenNeWRecord_WhenUpdated_ThenOperationIsSuccesfull() throws IOException {
+    public void GivenNeWRecord_WhenUpdated_ThenOperationIsSuccesfull() throws IOException, JsonPatchException {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"NEW\",\"created\":1552142013520}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
         ObjectMapper mapper = new ObjectMapper();
         JsonPatch patch = mapper.readValue("[{ \"op\": \"add\", \"path\": \"/password\" }]", JsonPatch.class);
-        JsonNode returnValue = recordProcessor.updateRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b",patch);
-        assert (!returnValue.path("password").isMissingNode());
-        assert (returnValue.path("info").path("recordStatus").asText().equals(RecordStatus.UPDATED.toString()));
-        assert (!returnValue.path("info").path("updated").isMissingNode());
+        when(recordFacade.patchOperation(patch,model)).thenReturn(model);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
+        recordProcessor.updateRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b",patch);
+        verify(recordFacade).patchOperation(patch,model);
+        verify(dataFileProcessor).putRecord(model);
     }
 
     @Test
-    public void GivenUpdatedRecord_WhenUpdated_ThenOperationIsSuccesfull() throws IOException {
+    public void GivenUpdatedRecord_WhenUpdated_ThenOperationIsSuccesfull() throws IOException, JsonPatchException {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"UPDATED\",\"created\":1552142013520}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
         ObjectMapper mapper = new ObjectMapper();
         JsonPatch patch = mapper.readValue("[{ \"op\": \"add\", \"path\": \"/password\" }]", JsonPatch.class);
-        JsonNode returnValue = recordProcessor.updateRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b",patch);
-        assert (!returnValue.path("password").isMissingNode());
-        assert (returnValue.path("info").path("recordStatus").asText().equals(RecordStatus.UPDATED.toString()));
+        when(recordFacade.patchOperation(patch,model)).thenReturn(model);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
+        recordProcessor.updateRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b",patch);
+        verify(recordFacade).patchOperation(patch,model);
+        verify(dataFileProcessor).putRecord(model);
     }
 
 
     @Test
     public void GivenNewRecord_WhenDelete_ThenOperationIsSuccesfull() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"NEW\",\"created\":1552142013520}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
-        JsonNode returnValue = recordProcessor.deleteRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
-        assert (returnValue.path("info").path("recordStatus").asText().equals(RecordStatus.DELETED.toString()));
-        assert (!returnValue.path("info").path("deleted").asText().isEmpty());
+        when(recordFacade.markForDeletion(model)).thenReturn(model);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
+        recordProcessor.deleteRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
+        verify(recordFacade).markForDeletion(model);
+        verify(dataFileProcessor).putRecord(model);
     }
 
     @Test
     public void GivenUpdatedRecord_WhenDelete_ThenOperationIsSuccesfull() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"UPDATED\",\"created\":1552142013520}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
-        JsonNode returnValue = recordProcessor.deleteRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
-        assert (returnValue.path("info").path("recordStatus").asText().equals(RecordStatus.DELETED.toString()));
-        assert (!returnValue.path("info").path("deleted").asText().isEmpty());
+        when(recordFacade.markForDeletion(model)).thenReturn(model);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
+        recordProcessor.deleteRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
+        verify(recordFacade).markForDeletion(model);
+        verify(dataFileProcessor).putRecord(model);
     }
 
 
     @Test(expected = ResponseStatusException.class)
     public void GivenDeletedRecord_WhenUpdated_ThenExceptionIsThrown() throws IOException {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"DELETED\",\"created\":1552142013520,\"updated\":[]}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
         ObjectMapper mapper = new ObjectMapper();
         JsonPatch patch = mapper.readValue("[{ \"op\": \"add\", \"path\": \"/password\" }]", JsonPatch.class);
         recordProcessor.updateRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b",patch);
@@ -152,10 +166,11 @@ public class RecordProcessorTest {
     @Test(expected = ResponseStatusException.class)
     public void GivenDeletedRecord_WhenDelete_ThenExceptionIsThrown() {
         DataFileProcessor dataFileProcessor = Mockito.mock(DataFileProcessor.class);
+        RecordFacade recordFacade = Mockito.mock(RecordFacade.class);
         String lineToRead = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"recordData\":\"test123\",\"recordStatus\":\"DELETED\",\"created\":1552142013520,\"updated\":[]}}";
         RecordModel model = new RecordModel(lineToRead);
         when(dataFileProcessor.getRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b")).thenReturn(model);
-        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor);
+        RecordProcessor recordProcessor = new RecordProcessor(dataFileProcessor,recordFacade);
         recordProcessor.deleteRecord("bd987eac-d21b-4b63-a3f3-1d33f8081a0b");
     }
 

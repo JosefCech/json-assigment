@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import org.cechjoe.work.assigment.data.RecordModel;
+import org.cechjoe.work.assigment.facade.RecordFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,10 +14,12 @@ import javax.validation.constraints.NotNull;
 @Component
 public class RecordProcessor {
 
+    private final RecordFacade recordFacade;
     private DataFileProcessor dataFileProcessor;
 
-    public RecordProcessor(@NotNull DataFileProcessor dataFileProcessor) {
+    public RecordProcessor(@NotNull DataFileProcessor dataFileProcessor , @NotNull RecordFacade recordFacade) {
         this.dataFileProcessor = dataFileProcessor;
+        this.recordFacade = recordFacade;
     }
 
     public JsonNode saveNewRecord(JsonNode newData) {
@@ -43,7 +46,7 @@ public class RecordProcessor {
     public JsonNode deleteRecord(String key) {
         RecordModel recordModel = dataFileProcessor.getRecord(key);
         if (!recordModel.isDeleted()) {
-            recordModel.markForDeletion();
+            recordModel = recordFacade.markForDeletion(recordModel);
             dataFileProcessor.putRecord(recordModel);
             return recordModel.getJsonNode();
         }
@@ -55,9 +58,14 @@ public class RecordProcessor {
     public JsonNode updateRecord(String key, JsonPatch patch) {
         RecordModel recordModel = dataFileProcessor.getRecord(key);
         try {
-            recordModel.patchOperation(patch);
-            dataFileProcessor.putRecord(recordModel);
-            return recordModel.getJsonNode();
+            if (!recordModel.isDeleted()) {
+                recordModel = recordFacade.patchOperation(patch,recordModel);
+                dataFileProcessor.putRecord(recordModel);
+                return recordModel.getJsonNode();
+            }
+            else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "key : " + key + " already deleted");
+            }
         } catch (JsonPatchException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
