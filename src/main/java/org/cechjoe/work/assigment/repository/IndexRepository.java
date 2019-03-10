@@ -16,7 +16,7 @@ public class IndexRepository {
     //Todo shrink data
     public IndexRepository(@NotNull FileRepository fileRepository)
     {
-        this.indexes = new HashMap<String,Integer>();
+        this.indexes = new HashMap<>();
         try (Stream<String> stream =  fileRepository.getAllLines()) {
             AtomicInteger index = new AtomicInteger();
             stream.forEach(line -> {
@@ -29,20 +29,17 @@ public class IndexRepository {
 
     public void setIndex(@NotNull String key, int indexLine )
     {
-        if (indexes.containsKey(key))
-        {
+        if (indexes.containsKey(key)) {
             indexes.replace(key,indexLine);
         }
         else {
             indexes.put(key,indexLine);
         }
-
     }
 
     public int getIndex( @NotNull String key)
     {
-        if (indexes.containsKey(key))
-        {
+        if (indexes.containsKey(key)) {
             return indexes.get(key).intValue();
         }
         return  -1;
