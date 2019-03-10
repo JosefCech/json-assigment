@@ -102,6 +102,10 @@ public class RecordModel {
                 info = (ObjectNode) node.path(INFO_FIELD);
                 info.remove(STATUS_FIELD);
                 info.put(STATUS_FIELD, RecordStatus.UPDATED.toString());
+                if (info.path(UPDATE_AT_FIELD).isMissingNode())
+                {
+                    info.putArray(UPDATE_AT_FIELD);
+                }
                 ArrayNode updates = (ArrayNode) info.path(UPDATE_AT_FIELD);
                 updates.add(dateToString(new Date()));
             } else {

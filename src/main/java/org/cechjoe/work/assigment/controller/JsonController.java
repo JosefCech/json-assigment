@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.constraints.NotNull;
 
 @RestController
 public class JsonController {
@@ -29,14 +28,6 @@ public class JsonController {
         return (JsonNode) recordProcessor.saveNewRecord(newData);
     }
 
-    private boolean verifyNewData(JsonNode newData) {
-        JsonNode info = newData.path("info");
-        if (!info.isMissingNode()) {
-            return !info.path("data").isMissingNode();
-        }
-        return false;
-    }
-
     @RequestMapping(value = "/record/{key}", method = RequestMethod.GET)
     @ResponseBody
     public JsonNode GetSavedData(@PathVariable("key") String key) {
@@ -47,6 +38,7 @@ public class JsonController {
     @RequestMapping(value = "/record/{key}", method = RequestMethod.DELETE)
     @ResponseBody
     public JsonNode deleteSavedData(@PathVariable("key") String key) {
+
         return recordProcessor.deleteRecord(key);
 
     }
