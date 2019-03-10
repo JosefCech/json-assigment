@@ -22,9 +22,6 @@ public class JsonController {
     @RequestMapping(value = "/record", method = RequestMethod.POST)
     @ResponseBody
     public JsonNode SaveNewData(@RequestBody JsonNode newData) {
-        if (!RecordModel.verifyNewData(newData)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing data");
-        }
         return (JsonNode) recordProcessor.saveNewRecord(newData);
     }
 

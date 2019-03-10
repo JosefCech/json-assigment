@@ -33,17 +33,12 @@ public class DataFileProcessor {
 
     public RecordModel getRecord(@NotNull String uuid) {
         int lineNum = indexRepository.getIndex(uuid);
-
-        if (lineNum >= 0) {
-            String line = fileRepository.getLine(lineNum);
+        String line = fileRepository.getLine(lineNum);
             if (!line.isEmpty()) {
                 return savedDataProcessor.readRecord(line);
             } else {
                 throw new ResponseStatusException(HttpStatus.NO_CONTENT, "line " + lineNum + "found but empty");
             }
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "key : " + uuid + " not found");
-        }
     }
 
     public boolean keyExists(@NotNull String uuid)

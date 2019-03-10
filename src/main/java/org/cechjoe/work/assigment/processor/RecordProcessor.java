@@ -21,6 +21,9 @@ public class RecordProcessor {
 
     public JsonNode saveNewRecord(JsonNode newData) {
         RecordModel savedData = new RecordModel(newData);
+        if (!RecordModel.verifyNewData(newData)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing data");
+        }
         if (!dataFileProcessor.keyExists(savedData.getUuid())) {
             dataFileProcessor.putRecord(savedData);
             return savedData.getJsonNode();
@@ -30,7 +33,11 @@ public class RecordProcessor {
     }
 
     public JsonNode getRecord(String key) {
-        return dataFileProcessor.getRecord(key).getJsonNode();
+        if (dataFileProcessor.keyExists(key)) {
+            return dataFileProcessor.getRecord(key).getJsonNode();
+        } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "key : " + key + " not found");
+        }
     }
 
     public JsonNode deleteRecord(String key) {
