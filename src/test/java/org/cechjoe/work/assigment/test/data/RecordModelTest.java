@@ -31,5 +31,15 @@ public class RecordModelTest {
 
     }
 
+    @Test
+    public  void GivenJsonString_WhenRecordObject_ThenObjectIsCreated()
+    {
+        String lineToWrite = "{\"recordId\":\"bd987eac-d21b-4b63-a3f3-1d33f8081a0b\",\"info\":{\"data\":\"test123\",\"status\":\"NEW\",\"createdAt\":1552142013520,\"updateAt\":[]}}";
+        RecordModel recordModel = new RecordModel(lineToWrite);
+        assert(recordModel.getUuid().equals("bd987eac-d21b-4b63-a3f3-1d33f8081a0b"));
+        assert(!recordModel.getJsonNode().isMissingNode());
+
+    }
+
 
 }

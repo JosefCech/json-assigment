@@ -123,7 +123,6 @@ public class RecordModel {
     }
 
     public void markForDeletion() {
-            ObjectMapper mapper = new ObjectMapper();
             ObjectNode info = (ObjectNode) node.path(INFO_FIELD);
             info.remove(STATUS_FIELD);
             info.remove(DELETED_AT_FIELD);
